@@ -51,3 +51,23 @@ __Ejercicio__
   
   -  Gestionar el carrito: Añadir un producto al carrito, eliminar un producto del carrito, abandono del carrito sin comprar, pagar.
 
+  añadir a carro
+      
+      ver stock
+      ver si hay en carro
+      añadir producto o sumar unidad a carro quitar de stock
+      
+  eliminar del carro
+  
+      quitar de carro y añadir a stock
+      
+  abandonar carro
+  
+      verificar fecha carros, si mayor 1 dia no asegura stock
+      
+  pagar
+  
+      si fecha carro inferior 1 dia pagar
+      si mayor verificar si hay stock si no preguntar si mantener el producto en _deseados_ para cuando haya stock
+      o eliminar del carro para siempre
+      pagar.
