@@ -58,37 +58,26 @@ __Ejercicio__
         ]}}         
       ])
             
-     busqueda por catgory_name
+     busqueda por catgory_name y precio produto
       
-      db.product.aggregate([
-        { $lookup:
-          {
-            from: "category",
-            localField: "_id",
-            foreignField: "categoria",
-            as: "categorias"
+      
+      db.category.aggregate([
+        {
+          "$project": { "_id": {"$toString": "$_id"},"name":"$name"}
+        },
+        {
+          "$lookup": {
+            "from": "product",
+            "localField": "_id",
+            "foreignField": "categoria",
+            "as": "role"
           }
         },
         {$match:{ $and:[ 
-          {"precio":{ $gte: 20 ,$lte: 1000}},
-          {"categorias":{"name":{$in:["Ordenadores"]}}}
-        ]}}
+                {"role.precio":{ $gte: 20 ,$lte: 1000}},
+                {"name":{$in:["Ordenadores"]}}
+              ]}}
       ])
-      
-      db.product.aggregate([
-        { $lookup:
-          {
-            from: "category",
-            localField: "categoria",
-            foreignField: "_id",
-            as: "categorias"
-          }
-        },
-        {$match:{ $and:[ 
-          {"precio":{ $gte: 20 ,$lte: 1000}}
-        ]}}
-      ])
-     
   
   -  Realizar un mantenimiento de la jerarquía de categorías añadiendo una nueva categoría y modificando una categoría. Realizar también las consultas para obtener el hilo de Ariadna de un producto determinado
   
