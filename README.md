@@ -99,8 +99,11 @@ __Ejercicio__
   
     ver si hay stock
       
-      db.cart.find({"_id":"product_id"}).count()
-      
+      db.product.aggregate(
+      {"$project": { "_id": {"$toString": "$_id"},cantidad:"$cantidad"}},
+      {$match:{"_id":"5d95c2170d79970740c4ccc9"}}
+      )
+ -------------------------------------------------     
            
     añadir producto (si no hay) o sumar (si ya hay) unidad a carro quitar de stock
       
