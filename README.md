@@ -54,11 +54,26 @@ __Ejercicio__
       db.product.aggregate([
         {$match:{ $and:[ 
           {"precio":{ $gte: 20 , $lte: 1000 }},
-          {"categoria":"5d8f93751c9d4400007120db"}
+          {"categoria":"5d9392ff1c9d440000261a17"}
         ]}}         
       ])
             
      busqueda por catgory_name
+      
+      db.product.aggregate([
+        { $lookup:
+          {
+            from: "category",
+            localField: "_id",
+            foreignField: "categoria",
+            as: "categorias"
+          }
+        },
+        {$match:{ $and:[ 
+          {"precio":{ $gte: 20 ,$lte: 1000}},
+          {"categorias":{"name":{$in:["Ordenadores"]}}}
+        ]}}
+      ])
       
       db.product.aggregate([
         { $lookup:
@@ -70,8 +85,7 @@ __Ejercicio__
           }
         },
         {$match:{ $and:[ 
-          {"precio":{ $gte: 20 ,$lte: 1000}},
-          {"categorias":{"name":{$in:["Ordenadores"]}}}
+          {"precio":{ $gte: 20 ,$lte: 1000}}
         ]}}
       ])
      
@@ -131,3 +145,4 @@ __Ejercicio__
       si mayor verificar si hay stock si no preguntar si mantener el producto en _deseados_ para cuando haya stock
       o eliminar del carro para siempre
       pagar.
+db.product.findOne( { "_id": ObjectId("5d93894f1c9d4400002619fb") } )
