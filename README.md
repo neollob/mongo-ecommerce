@@ -34,32 +34,92 @@ __Ejercicio__
   
   -  Generar algunas consultas sobre productos, que puedan ser requeridas por los usuarios (Buscar por tipo de producto, talla, tamaño, precios, recomendados, ofertas, últimas adquisiciones, etc…)
   
-  crear indices nombre producto, modelo, precio, categoria, tipo (recomendado,oferta,promocion), fecha (novedades)
+    crear indices nombre producto, modelo, precio, categoria, tipo (recomendado,oferta,promocion), fecha (novedades)
+    
+      db.product.createIndex({"nombre":"text","precio":1})
   
-  aggregates con lookouts
-  
+    aggregates con lookouts
+    
+     Buscar productos por nombre
+     
+      db.product.find( { $text: { $search: "Lenovo" } } )
+          
+     Buscar productos por rango de precios
+     
+      db.product.find( { $and: [ { precio: { $gte: 20 } }, { precio: { $lte: 100 } } ] } )
+     
+     Buscar productos por rango de precios y categoria
+      busqueda por product_id
+      
+      db.product.aggregate([
+        {$match:{ $and:[ 
+          {"precio":{ $gte: 20 , $lte: 1000 }},
+          {"categoria":"5d8f93751c9d4400007120db"}
+        ]}}         
+      ])
+            
+     busqueda por catgory_name
+      
+      db.product.aggregate([
+        { $lookup:
+          {
+            from: "category",
+            localField: "categoria",
+            foreignField: "_id",
+            as: "categorias"
+          }
+        },
+        {$match:{ $and:[ 
+          {"precio":{ $gte: 20 ,$lte: 1000}},
+          {"categorias":{"name":{$in:["Ordenadores"]}}}
+        ]}}
+      ])
+     
   
   -  Realizar un mantenimiento de la jerarquía de categorías añadiendo una nueva categoría y modificando una categoría. Realizar también las consultas para obtener el hilo de Ariadna de un producto determinado
   
   insertar categoria con padre o sin. 
   
+      db.category.insert( { name: ** nombreCategoria **, padre: ** padreId ** } )
+      db.category.insert( { name: ** nombreCategoria ** } )
+  
   Crear indices nombre y padre
+      
+      db.category.createIndex({"name":"text","padre_id":1})     
   
   hilo de ariadna -> buscar el padre del padre hasta encontrar huerfano
   
-
   
   -  Gestionar el carrito: Añadir un producto al carrito, eliminar un producto del carrito, abandono del carrito sin comprar, pagar.
 
   añadir a carro
-      
-      ver stock
-      ver si hay en carro
-      añadir producto o sumar unidad a carro quitar de stock
-      
-  eliminar del carro
   
-      quitar de carro y añadir a stock
+    ver si hay stock
+      
+      db.cart.find({"_id":"product_id"}).count()
+      
+           
+    añadir producto (si no hay) o sumar (si ya hay) unidad a carro quitar de stock
+      
+      db.cart.update(
+        { products.product_id: "product_id" },
+        { $inc: { qty: 1 } },
+        { upsert: true }
+      )
+      
+  quitar de carro y añadir a stock
+  
+      let prod=db.cart.findAndModify(
+       {
+         query: { state: "active","products.product_id":"product_id" },
+         remove: true
+       }
+      )
+      db.products.update(
+        { product_id: "product_id" },
+        { $inc: { qty: $prod.qty } },
+        { upsert: true }
+      ) 
       
   abandonar carro
   
