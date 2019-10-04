@@ -113,12 +113,17 @@ __Ejercicio__
       }) 
       db.cart.update(
     { "userid":"5d8f8e8f1c9d4400007120d3", state:"A"},
-    { $push: {"products": {
-        _id: new ObjectId(),
+    { $addToSet: {"products": {
         prodid:"5d95a8610d79970740c4ccbe",
         qty: 1 
     }}}
 )
+if (result.nMatched === 0) {
+  db.cart.update(
+      {"userid":"5d8f8e8f1c9d4400007120d3", state:"A","products.prodid":"5d95a8610d79970740c4ccbe" },
+      { $set: {"qty":+1} }
+   )
+}
       db.cart.find({state:"A"})
       db.cart.update(
         { products.product_id: "product_id" },
