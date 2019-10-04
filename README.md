@@ -103,55 +103,43 @@ __Ejercicio__
       {"$project": { "_id": {"$toString": "$_id"},cantidad:"$cantidad"}},
       {$match:{"_id":"5d95c2170d79970740c4ccc9"}}
       )
- -------------------------------------------------     
            
     añadir producto (si no hay) o sumar (si ya hay) unidad a carro quitar de stock
             
       db.cart.update(
-        { "userid":"5d8f8e8f1c9d4400007120d3", state:"A"},
-        { $addToSet: {"products": {
-            prodid:"5d95a8610d79970740c4ccbe",
-            qty: 1 
-        }}}
+        { "userid":"5d8f8e8f1c9d4400007120d3", state:"A","products.prodid":"5d95a8610d79970740c4ccbe"},
+        { $inc: {"products.qty": 1 } },
+        { upsert: true}
       )
-      if (result.nMatched === 0) {
-        db.cart.update(
-          {"userid":"5d8f8e8f1c9d4400007120d3", state:"A","products.prodid":"5d95a8610d79970740c4ccbe" },
-          { $set: {"qty":+1} }
-        )
-      }
----------------------------------------------------------------------------------------------      
+      db.product.update(
+        { "_id":ObjectId("5d95a57516a7610740c9667b") },
+        { $inc: {"cantidad": -1 } },
+        { upsert: true}
+      )
 
-      db.cart.findAndModify({
-        query:{"userid":"5d8f8e8f1c9d4400007120d3", state:"A"},
-        update:{  "products.prodid":"5d95a8610d79970740c4ccbe", $inc: { products.qty: 1 } },
-        upsert: true 
-      }) 
-      db.cart.find({state:"A"})
-      db.cart.update(
-        { products.product_id: "product_id" },
-        { $inc: { qty: 1 } },
-        { upsert: true }
-      )
-      
+     
   quitar de carro y añadir a stock
   
-      let prod=db.cart.findAndModify(
-       {
-         query: { state: "active","products.product_id":"product_id" },
-         remove: true
-       }
+      db.cart.update(
+        { "userid":"5d8f8e8f1c9d4400007120d3", state:"A","products.prodid":"5d95a8610d79970740c4ccbe"},
+        { $inc: {"products.qty": -1 } },
+        { upsert: true}
       )
-      db.products.update(
-        { product_id: "product_id" },
-        { $inc: { qty: $prod.qty } },
-        { upsert: true }
-      ) 
-      
+      db.product.update(
+        { "_id":ObjectId("5d95a57516a7610740c9667b") },
+        { $inc: {"cantidad": 1 } },
+        { upsert: true}
+      )
+ --------------------------------------------------------------------------------------------     
   abandonar carro
-  
-      verificar fecha carros, si mayor 1 dia no asegura stock
-      
+   - verificar fecha carros, si mayor 1 dia no asegura stock
+   
+    db.cart.find({}).forEach(function(doc) {
+       var ts= doc._id.getTimestamp();
+       var nts= new Date(ts.getTime() + 1000 * 3600 * 24);
+       printjson(ts+" - "+nts)
+    })   
+    
   pagar
   
       si fecha carro inferior 1 dia pagar
