@@ -106,7 +106,20 @@ __Ejercicio__
  -------------------------------------------------     
            
     añadir producto (si no hay) o sumar (si ya hay) unidad a carro quitar de stock
-      
+      db.cart.findAndModify({
+        query:{"userid":"5d8f8e8f1c9d4400007120d3", state:"A"},
+        update:{  "products.prodid":"5d95a8610d79970740c4ccbe", $inc: { products.qty: 1 } },
+        upsert: true 
+      }) 
+      db.cart.update(
+    { "userid":"5d8f8e8f1c9d4400007120d3", state:"A"},
+    { $push: {"products": {
+        _id: new ObjectId(),
+        prodid:"5d95a8610d79970740c4ccbe",
+        qty: 1 
+    }}}
+)
+      db.cart.find({state:"A"})
       db.cart.update(
         { products.product_id: "product_id" },
         { $inc: { qty: 1 } },
